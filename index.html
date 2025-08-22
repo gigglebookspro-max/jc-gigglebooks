@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Untitled</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+GiggleBooks
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GiggleBooks - Busy Book Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 25%, #a8edea 50%, #fed6e3 75%, #d299c2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            height: var(--embed-height, auto);
+            overflow-y: auto;
+        }
+        
+        .compact-mode {
+            padding: 10px;
+        }
+        
+        .compact-mode .header {
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+        
+        .compact-mode .header h1 {
+            font-size: 2rem;
+        }
+        
+        .compact-mode .column {
+            min-height: 300px;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 4px solid #ff6b6b;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .add-button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .add-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .column {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            min-height: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 4px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .ideas { border-color: #feca57; background: linear-gradient(135deg, #fff9e6, #fef3c7); }
+        .progress { border-color: #54a0ff; background: linear-gradient(135deg, #e6f3ff, #dbeafe); }
+        .completed { border-color: #5f27cd; background: linear-gradient(135deg, #f0e6ff, #e0e7ff); }
+        
+        .column-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .column-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+        
+        .counter {
+            background: rgba(255,255,255,0.8);
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-left: 10px;
+            font-size: 1rem;
+            border: 2px solid;
+        }
+        
+        .ideas .counter { border-color: #feca57; color: #d68910; }
+        .progress .counter { border-color: #54a0ff; color: #2e86de; }
+        .completed .counter { border-color: #5f27cd; color: #5f27cd; }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 3px solid #e0e0e0;
+            cursor: move;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card.highlighted {
+            border: 4px solid #ff6b6b !important;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5) !important;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .card-icon {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .card-desc {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .age-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 2px solid #bbdefb;
+        }
+        
+        .share-btn, .canva-btn, .delete-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .share-btn:hover {
+            background: #e8f5e8;
+            transform: scale(1.2);
+        }
+        
+        .canva-btn:hover {
+            background: #f3e5f5;
+            transform: scale(1.2);
+        }
+        
+        .delete-btn:hover {
+            background: #ffebee;
+            transform: scale(1.2);
+        }
+        
+        .drag-over {
+            background: linear-gradient(45deg, #fef3c7, #ddd6fe) !important;
+            border: 3px dashed #8b5cf6 !important;
+            transform: scale(1.02);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border: 4px solid #ff6b6b;
+        }
+        
+        .modal h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #ff6b6b;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .payment-gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .payment-content {
+            background: white;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 4px solid;
+            border-image: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57) 1;
+        }
+        
+        .payment-title {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .price {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 20px 0;
+        }
+        
+        .payment-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .payment-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .demo-btn {
+            background: linear-gradient(45deg, #8b5cf6, #ec4899);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 15px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .blur-content {
+            filter: blur(3px);
+            pointer-events: none;
+        }
+        
+        .link-info {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8ff);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #4ecdc4;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .board { grid-template-columns: 1fr; }
+            .payment-title { font-size: 2rem; }
+            .price { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Payment Gate -->
+    <div id="paymentGate" class="payment-gate">
+        <div class="payment-content">
+            <div style="font-size: 3rem; margin-bottom: 20px;">🌈✨</div>
+            <h1 class="payment-title">GiggleBooks Premium</h1>
+            <p style="font-size: 1.2rem; color: #666; margin-bottom: 30px;">
+                The Ultimate Busy Book Planning Tool for Creative Parents!
+            </p>
+            
+            <div style="background: linear-gradient(135deg, #f8f9ff, #fff0f8); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                <h3 style="color: #8b5cf6; margin-bottom: 15px;">🎨 What You Get:</h3>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <span style="color: #10b981;">✅</span>
+                        <span>Interactive Project Board</span>
+                    </div>
+                    <div class="feature-item">
+                        <span style="color: #10b981;">✅</span>
+                        <span>130+ Activity Ideas</span>
+                    </div>
+                    <div class="feature-item">
+                        <span style="color: #10b981;">✅</span>
+                        <span>Drag & Drop Organization</span>
+                    </div>
+                    <div class="feature-item">
+                        <span style="color: #10b981;">✅</span>
+                        <span>Age-Appropriate Sorting</span>
+                    </div>
+                    <div class="feature-item">
+                        <span style="color: #10b981;">✅</span>
+                        <span>Detailed Activity Guides</span>
+                    </div>
+                    <div class="feature-item">
+                        <span style="color: #10b981;">✅</span>
+                        <span>Shareable Activity Links</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-decoration: line-through; color: #999; margin-bottom: 10px;">Regular Price: ₱899</div>
+            <div class="price">₱499</div>
+            <div style="color: #10b981; font-weight: bold; margin-bottom: 30px;">⚡ Limited Time Offer!</div>
+            
+            <button onclick="processPayment('paypal')" class="payment-btn">
+                💳 Pay with PayPal - ₱499
+            </button>
+            <br>
+            <button onclick="processPayment('stripe')" class="payment-btn">
+                💳 Pay with Card - ₱499
+            </button>
+            
+            <div style="margin: 30px 0;">
+                <button onclick="startDemo()" class="demo-btn">
+                    🎮 Try 30-Second Demo
+                </button>
+            </div>
+            
+            <div style="font-size: 0.9rem; color: #666; margin-top: 20px;">
+                🔒 Secure Payment • 💯 Money Back Guarantee • ⚡ Instant Access
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="blur-content">
+        <div class="container">
+            <div class="header">
+                <h1>🌈 GiggleBooks 🎨</h1>
+                <p style="color: #8b5cf6; font-size: 1.2rem; font-weight: bold;">Let's make amazing activities for little hands! ✨</p>
+                
+                <!-- Link Info Box -->
+                <div id="linkInfo" class="link-info" style="display: none;">
+                    <h4 style="color: #2d5a27; margin-bottom: 10px;">🔗 Direct Activity Links</h4>
+                    <p style="color: #4a5c4a; font-size: 0.9rem;">Click the 🔗 button on any activity to get a shareable link that jumps directly to that activity!</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 30px;">
+                <button onclick="showAddModal()" class="add-button">
+                    🎉 Add New Fun Activity! 🎉
+                </button>
+            </div>
+            
+            <div class="board">
+                <div class="column ideas" ondrop="drop(event, 'ideas')" ondragover="allowDrop(event)" ondragleave="removeDragOver(event)">
+                    <div class="column-header">
+                        <span class="column-icon">💡</span>
+                        <div>
+                            <div>Fun Ideas!</div>
+                            <span class="counter" id="ideas-count">5</span>
+                        </div>
+                    </div>
+                    <div id="ideas">
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="1" onclick="showDetails('alphabet')">
+                            <div class="card-icon">🔤</div>
+                            <div class="card-title">Alphabet Matching</div>
+                            <div class="card-desc">Create letter matching activities with velcro</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 3-5 👶</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('1', 'alphabet', 'Alphabet Matching'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('alphabet'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="2" onclick="showDetails('shapes')">
+                            <div class="card-icon">🔷</div>
+                            <div class="card-title">Shape Sorting</div>
+                            <div class="card-desc">Felt shapes with matching holes</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 2-4 🍼</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('2', 'shapes', 'Shape Sorting'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('shapes'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="3" onclick="showDetails('counting')">
+                            <div class="card-icon">🔢</div>
+                            <div class="card-title">Counting Bears</div>
+                            <div class="card-desc">Number cards with colorful counting bears</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 3-6 🧒</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('3', 'counting', 'Counting Bears'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('counting'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="4" onclick="showDetails('weather')">
+                            <div class="card-icon">🌤️</div>
+                            <div class="card-title">Weather Wheel</div>
+                            <div class="card-desc">Spinning wheel with weather patterns</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 4-7 👦</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('4', 'weather', 'Weather Wheel'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('weather'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="5" onclick="showDetails('dressup')">
+                            <div class="card-icon">👗</div>
+                            <div class="card-title">Dress-Up Doll</div>
+                            <div class="card-desc">Paper doll with velcro outfits</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 3-8 👧</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('5', 'dressup', 'Dress-Up Doll'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('dressup'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column progress" ondrop="drop(event, 'progress')" ondragover="allowDrop(event)" ondragleave="removeDragOver(event)">
+                    <div class="column-header">
+                        <span class="column-icon">🔨</span>
+                        <div>
+                            <div>Making It!</div>
+                            <span class="counter" id="progress-count">5</span>
+                        </div>
+                    </div>
+                    <div id="progress">
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="6" onclick="showDetails('lacing')">
+                            <div class="card-icon">🧵</div>
+                            <div class="card-title">Lacing Cards</div>
+                            <div class="card-desc">Fine motor skill development cards</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 4-6 🧒</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('6', 'lacing', 'Lacing Cards'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('lacing'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="7" onclick="showDetails('texture')">
+                            <div class="card-icon">✋</div>
+                            <div class="card-title">Texture Board</div>
+                            <div class="card-desc">Different textures for sensory play</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 1-4 🍼</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('7', 'texture', 'Texture Board'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('texture'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="10" onclick="showDetails('matching')">
+                            <div class="card-icon">🧩</div>
+                            <div class="card-title">Memory Matching</div>
+                            <div class="card-desc">Picture cards for memory games</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 3-6 🧒</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('10', 'matching', 'Memory Matching'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('matching'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="11" onclick="showDetails('patterns')">
+                            <div class="card-icon">🔄</div>
+                            <div class="card-title">Pattern Blocks</div>
+                            <div class="card-desc">Colorful pattern completion activity</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 4-7 👦</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('11', 'patterns', 'Pattern Blocks'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('patterns'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="12" onclick="showDetails('tracing')">
+                            <div class="card-icon">✏️</div>
+                            <div class="card-title">Tracing Practice</div>
+                            <div class="card-desc">Laminated sheets for writing practice</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 3-5 👶</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('12', 'tracing', 'Tracing Practice'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('tracing'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column completed" ondrop="drop(event, 'completed')" ondragover="allowDrop(event)" ondragleave="removeDragOver(event)">
+                    <div class="column-header">
+                        <span class="column-icon">🎉</span>
+                        <div>
+                            <div>All Done!</div>
+                            <span class="counter" id="completed-count">5</span>
+                        </div>
+                    </div>
+                    <div id="completed">
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="8" onclick="showDetails('colors')">
+                            <div class="card-icon">🌈</div>
+                            <div class="card-title">Color Wheel</div>
+                            <div class="card-desc">Spinning color matching game</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 2-5 👶</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('8', 'colors', 'Color Wheel'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('colors'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="9" onclick="showDetails('ocean')">
+                            <div class="card-icon">🐠</div>
+                            <div class="card-title">Ocean Puzzle</div>
+                            <div class="card-desc">Sea creatures matching puzzle</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 3-6 🧒</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('9', 'ocean', 'Ocean Puzzle'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('ocean'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="13" onclick="showDetails('farm')">
+                            <div class="card-icon">🐄</div>
+                            <div class="card-title">Farm Animals</div>
+                            <div class="card-desc">Animal sounds and matching game</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 2-5 👶</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('13', 'farm', 'Farm Animals'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('farm'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="14" onclick="showDetails('clock')">
+                            <div class="card-icon">🕐</div>
+                            <div class="card-title">Learning Clock</div>
+                            <div class="card-desc">Interactive time-telling activity</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 5-8 👧</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('14', 'clock', 'Learning Clock'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('clock'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card" draggable="true" ondragstart="drag(event)" data-id="15" onclick="showDetails('emotions')">
+                            <div class="card-icon">😊</div>
+                            <div class="card-title">Emotion Faces</div>
+                            <div class="card-desc">Feelings identification and matching</div>
+                            <div class="card-footer">
+                                <span class="age-badge">Ages 3-7 👦</span>
+                                <div class="card-actions">
+                                    <button class="share-btn" onclick="copyActivityLink('15', 'emotions', 'Emotion Faces'); event.stopPropagation();" title="Share this activity">🔗</button>
+                                    <button class="canva-btn" onclick="openCanvaTemplate('emotions'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                                    <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Activity Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h3>🎨 Add New Activity</h3>
+            <div class="form-group">
+                <input type="text" id="activityName" placeholder="Activity Name">
+            </div>
+            <div class="form-group">
+                <textarea id="activityDesc" placeholder="Activity Description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <select id="activityAge">
+                    <option value="">Select Age Group</option>
+                    <option value="Ages 1-3 🍼">Ages 1-3 🍼</option>
+                    <option value="Ages 2-4 👶">Ages 2-4 👶</option>
+                    <option value="Ages 3-5 🧒">Ages 3-5 🧒</option>
+                    <option value="Ages 4-6 👦">Ages 4-6 👦</option>
+                    <option value="Ages 5-8 👧">Ages 5-8 👧</option>
+                </select>
+            </div>
+            <div class="form-buttons">
+                <button class="btn btn-primary" onclick="addActivity()">✨ Add Activity</button>
+                <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isPaid = false;
+        let demoActive = false;
+        let demoTimer = null;
+
+        // Check payment status
+        function checkPaymentStatus() {
+            const paid = localStorage.getItem('gigglebooks_paid') === 'true';
+            if (paid) {
+                unlockFullAccess();
+            }
+        }
+
+        // Payment processing
+        function processPayment(method) {
+            const buttons = document.querySelectorAll('.payment-btn');
+            buttons.forEach(btn => {
+                btn.innerHTML = '⏳ Processing...';
+                btn.disabled = true;
+            });
+
+            setTimeout(() => {
+                if (method === 'paypal') {
+                    window.open('https://paypal.me/DSoon744/499', '_blank');
+                } else {
+                    window.open('https://buy.stripe.com/your-payment-link', '_blank');
+                }
+                
+                // Simulate successful payment after 3 seconds
+                setTimeout(() => {
+                    localStorage.setItem('gigglebooks_paid', 'true');
+                    unlockFullAccess();
+                    alert('🎉 Payment successful! Welcome to GiggleBooks Premium!');
+                }, 3000);
+            }, 1000);
+        }
+
+        // Demo functionality
+        function startDemo() {
+            demoActive = true;
+            isPaid = true;
+            document.getElementById('paymentGate').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('blur-content');
+            
+            alert('🎮 Demo started! Try dragging activities between columns. Demo ends in 30 seconds.');
+            
+            demoTimer = setTimeout(() => {
+                endDemo();
+            }, 30000);
+        }
+
+        function endDemo() {
+            demoActive = false;
+            isPaid = false;
+            document.getElementById('paymentGate').style.display = 'flex';
+            document.getElementById('mainContent').classList.add('blur-content');
+            alert('🔒 Demo ended! Purchase for unlimited access.');
+            if (demoTimer) clearTimeout(demoTimer);
+        }
+
+        function unlockFullAccess() {
+            isPaid = true;
+            demoActive = false;
+            document.getElementById('paymentGate').style.display = 'none';
+            document.getElementById('mainContent').classList.remove('blur-content');
+            document.getElementById('linkInfo').style.display = 'block';
+            if (demoTimer) clearTimeout(demoTimer);
+        }
+
+        // Direct activity linking
+        function handleDirectLinks() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const activityId = urlParams.get('activity');
+            const showActivity = urlParams.get('show');
+            
+            if (activityId && isPaid) {
+                // Highlight specific activity
+                const card = document.querySelector(`[data-id="${activityId}"]`);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('highlighted');
+                    
+                    // Show details automatically after highlighting
+                    setTimeout(() => {
+                        card.click();
+                    }, 1500);
+                    
+                    // Remove highlight after 5 seconds
+                    setTimeout(() => {
+                        card.classList.remove('highlighted');
+                    }, 5000);
+                }
+            }
+            
+            if (showActivity && isPaid) {
+                // Auto-show activity details
+                setTimeout(() => {
+                    showDetails(showActivity);
+                }, 500);
+            }
+        }
+
+        // Canva template links for each activity
+        const canvaTemplates = {
+            alphabet: 'https://www.canva.com/design/DAGXXXXXXXx/edit',
+            shapes: 'https://www.canva.com/design/DAGXXXXXXXy/edit',
+            counting: 'https://www.canva.com/design/DAGXXXXXXXz/edit',
+            weather: 'https://www.canva.com/design/DAGXXXXXXXa/edit',
+            dressup: 'https://www.canva.com/design/DAGXXXXXXXb/edit',
+            lacing: 'https://www.canva.com/design/DAGXXXXXXXc/edit',
+            texture: 'https://www.canva.com/design/DAGXXXXXXXd/edit',
+            matching: 'https://www.canva.com/design/DAGXXXXXXXe/edit',
+            patterns: 'https://www.canva.com/design/DAGXXXXXXXf/edit',
+            tracing: 'https://www.canva.com/design/DAGXXXXXXXg/edit',
+            colors: 'https://www.canva.com/design/DAGXXXXXXXh/edit',
+            ocean: 'https://www.canva.com/design/DAGXXXXXXXi/edit',
+            farm: 'https://www.canva.com/design/DAGXXXXXXXj/edit',
+            clock: 'https://www.canva.com/design/DAGXXXXXXXk/edit',
+            emotions: 'https://www.canva.com/design/DAGXXXXXXXl/edit'
+        };
+
+        // Open Canva template
+        function openCanvaTemplate(activityType) {
+            if (!isPaid) {
+                alert('🔒 Canva templates require premium access!');
+                return;
+            }
+            
+            const templateUrl = canvaTemplates[activityType];
+            if (templateUrl) {
+                window.open(templateUrl, '_blank');
+                alert(`🎨 Opening Canva template for ${activityType}!\n\nTip: The template will open in a new tab. You can customize it and download your design!`);
+            } else {
+                alert('🎨 Canva template coming soon for this activity!');
+            }
+        }
+
+        // Generate shareable links
+        function generateActivityLink(activityId, activityType) {
+            const baseUrl = window.location.origin + window.location.pathname;
+            return `${baseUrl}?activity=${activityId}&show=${activityType}`;
+        }
+
+        // Copy link to clipboard
+        function copyActivityLink(activityId, activityType, activityName) {
+            if (!isPaid) {
+                alert('🔒 Link sharing requires premium access!');
+                return;
+            }
+            
+            const link = generateActivityLink(activityId, activityType);
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(link).then(() => {
+                    alert(`🔗 Link copied for "${activityName}"!\n\nShare this link to jump directly to this activity:\n${link}`);
+                }).catch(() => {
+                    showLinkDialog(link, activityName);
+                });
+            } else {
+                showLinkDialog(link, activityName);
+            }
+        }
+
+        function showLinkDialog(link, activityName) {
+            const result = prompt(`🔗 Copy this link for "${activityName}":`, link);
+            if (result) {
+                alert('✅ Link ready to share!');
+            }
+        }
+
+        // Drag and drop functionality
+        function allowDrop(ev) {
+            if (isPaid) {
+                ev.preventDefault();
+                ev.currentTarget.classList.add('drag-over');
+            }
+        }
+
+        function removeDragOver(ev) {
+            if (!ev.currentTarget.contains(ev.relatedTarget)) {
+                ev.currentTarget.classList.remove('drag-over');
+            }
+        }
+
+        function drag(ev) {
+            if (isPaid) {
+                ev.dataTransfer.setData("text", ev.target.dataset.id);
+                ev.target.style.opacity = '0.5';
+            }
+        }
+
+        function drop(ev, columnId) {
+            if (!isPaid) return;
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            
+            const cardId = ev.dataTransfer.getData("text");
+            const card = document.querySelector(`[data-id="${cardId}"]`);
+            
+            if (card) {
+                card.style.opacity = '1';
+                document.getElementById(columnId).appendChild(card);
+                updateCounters();
+                
+                // Success animation
+                card.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    card.style.transform = 'scale(1)';
+                }, 200);
+            }
+        }
+
+        // Activity management
+        function deleteCard(button) {
+            if (!isPaid) {
+                alert('🔒 Premium feature!');
+                return;
+            }
+            if (confirm('Delete this activity?')) {
+                button.closest('.card').remove();
+                updateCounters();
+            }
+        }
+
+        function updateCounters() {
+            document.getElementById('ideas-count').textContent = document.getElementById('ideas').children.length;
+            document.getElementById('progress-count').textContent = document.getElementById('progress').children.length;
+            document.getElementById('completed-count').textContent = document.getElementById('completed').children.length;
+        }
+
+        function showDetails(activityType) {
+            if (!isPaid) {
+                alert('🔒 Activity details available in full version only!');
+                return;
+            }
+            
+            const details = {
+                alphabet: "📚 Alphabet Matching:\n\n• Cut 26 letter shapes from felt\n• Create matching velcro boards\n• Include uppercase and lowercase\n• Add picture cards for each letter\n• Perfect for ages 3-5!\n\n🔗 Share this activity with the link button!",
+                shapes: "🔷 Shape Sorting:\n\n• Cut circles, squares, triangles\n• Create sorting board with holes\n• Use bright colors\n• Add texture variations\n• Great for ages 2-4!\n\n🔗 Share this activity with the link button!",
+                counting: "🔢 Counting Bears:\n\n• Use small counting bears\n• Create number cards 1-10\n• Add color sorting\n• Include simple math\n• Perfect for ages 3-6!\n\n🔗 Share this activity with the link button!",
+                weather: "🌤️ Weather Wheel:\n\n• Create spinning wheel\n• Include weather icons\n• Add clothing cards\n• Teach daily tracking\n• Great for ages 4-7!\n\n🔗 Share this activity with the link button!",
+                dressup: "👗 Dress-Up Doll:\n\n• Create paper doll figure\n• Design 10+ outfit pieces\n• Use velcro attachment\n• Include seasonal clothing\n• Fun for ages 3-8!\n\n🔗 Share this activity with the link button!",
+                lacing: "🧵 Lacing Cards:\n\n• Create thick cardboard cards\n• Punch holes around edges\n• Use colorful shoelaces\n• Start with simple shapes\n• Builds fine motor skills!\n\n🔗 Share this activity with the link button!",
+                texture: "✋ Texture Board:\n\n• Collect different materials\n• Glue to sturdy board\n• Include smooth, rough, soft\n• Add fabric swatches\n• Great sensory experience!\n\n🔗 Share this activity with the link button!",
+                colors: "🌈 Color Wheel:\n\n• Create spinning color wheel\n• Add matching color cards\n• Include color mixing\n• Teach primary/secondary\n• Interactive learning!\n\n🔗 Share this activity with the link button!",
+                ocean: "🐠 Ocean Puzzle:\n\n• Design sea creature shapes\n• Create ocean background\n• Add velcro attachments\n• Include fun facts\n• Educational and fun!\n\n🔗 Share this activity with the link button!"
+            };
+            
+            alert(details[activityType] || "Activity details coming soon!\n\n🔗 Share this activity with the link button!");
+        }
+
+        // Modal functionality
+        function showAddModal() {
+            if (!isPaid) {
+                alert('🔒 Adding activities requires premium access!');
+                return;
+            }
+            document.getElementById('addModal').style.display = 'block';
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('activityName').value = '';
+            document.getElementById('activityDesc').value = '';
+            document.getElementById('activityAge').value = '';
+        }
+
+        function addActivity() {
+            const name = document.getElementById('activityName').value;
+            const desc = document.getElementById('activityDesc').value;
+            const age = document.getElementById('activityAge').value;
+            
+            if (!name || !desc || !age) {
+                alert('Please fill in all fields!');
+                return;
+            }
+            
+            const newId = Date.now();
+            const newCard = document.createElement('div');
+            newCard.className = 'card';
+            newCard.draggable = true;
+            newCard.setAttribute('data-id', newId);
+            newCard.ondragstart = drag;
+            newCard.onclick = () => showDetails('custom');
+            
+            newCard.innerHTML = `
+                <div class="card-icon">🎨</div>
+                <div class="card-title">${name}</div>
+                <div class="card-desc">${desc}</div>
+                <div class="card-footer">
+                    <span class="age-badge">${age}</span>
+                    <div class="card-actions">
+                        <button class="share-btn" onclick="copyActivityLink('${newId}', 'custom', '${name}'); event.stopPropagation();" title="Share this activity">🔗</button>
+                        <button class="canva-btn" onclick="openCanvaTemplate('custom'); event.stopPropagation();" title="Open Canva template">🎨</button>
+                        <button class="delete-btn" onclick="deleteCard(this); event.stopPropagation();">🗑️</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('ideas').appendChild(newCard);
+            updateCounters();
+            closeAddModal();
+            
+            // Success animation
+            newCard.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                newCard.style.transform = 'scale(1)';
+            }, 300);
+        }
+
+        // Click outside modal to close
+        window.onclick = function(event) {
+            const modal = document.getElementById('addModal');
+            if (event.target === modal) {
+                closeAddModal();
+            }
+        }
+
+        // Height adjustment functionality
+        function adjustForEmbedHeight() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const embedHeight = urlParams.get('height');
+            const compact = urlParams.get('compact');
+            
+            if (embedHeight) {
+                document.documentElement.style.setProperty('--embed-height', embedHeight + 'px');
+            }
+            
+            if (compact === 'true' || (embedHeight && parseInt(embedHeight) < 600)) {
+                document.body.classList.add('compact-mode');
+            }
+            
+            // Auto-detect if in iframe and adjust
+            if (window.self !== window.top) {
+                document.body.classList.add('compact-mode');
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            adjustForEmbedHeight();
+            checkPaymentStatus();
+            setTimeout(handleDirectLinks, 1000); // Wait for payment check
+        });
+
+        // Basic protection
+        document.addEventListener('contextmenu', function(e) {
+            if (!isPaid) {
+                e.preventDefault();
+                alert('🔒 Right-click disabled in demo mode!');
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'972b6e8dd41702ca',t:'MTc1NTc5Mjk1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+<!-- partial -->
+  <script  src="./script.js"></script>
+
+</body>
+</html>
